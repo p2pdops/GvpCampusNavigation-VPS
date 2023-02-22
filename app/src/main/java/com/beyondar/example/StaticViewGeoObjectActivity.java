@@ -19,12 +19,23 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.beyondar.android.fragment.BeyondarFragmentSupport;
@@ -34,13 +45,14 @@ import com.beyondar.android.world.BeyondarObject;
 import com.beyondar.android.world.BeyondarObjectList;
 import com.beyondar.android.world.World;
 
-public class StaticViewGeoObjectActivity extends FragmentActivity implements
-        OnClickBeyondarObjectListener {
+public class StaticViewGeoObjectActivity extends FragmentActivity implements OnClickBeyondarObjectListener, LocationListener {
 
+    private static final String TAG = "StaticViewGeoObjectActi";
     private static final String TMP_IMAGE_PREFIX = "viewImage_";
 
     private BeyondarFragmentSupport mBeyondarFragment;
     private World mWorld;
+    private LocationManager lm;
 
     /**
      * Called when the activity is first created.
@@ -58,8 +70,27 @@ public class StaticViewGeoObjectActivity extends FragmentActivity implements
 
         setContentView(R.layout.simple_camera);
 
-        mBeyondarFragment = (BeyondarFragmentSupport) getSupportFragmentManager().findFragmentById(
-                R.id.beyondarFragment);
+        lm = getSystemService(LocationManager.class);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.CAMERA}, 1);
+            return;
+        }
+
+        // check and enable GPS
+        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+            return;
+        }
+
+        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 10.0F, (LocationListener) this);
+
+        mBeyondarFragment = (BeyondarFragmentSupport) getSupportFragmentManager().findFragmentById(R.id.beyondarFragment);
 
         mBeyondarFragment.setMaxDistanceToRender(1000);
 
@@ -67,6 +98,12 @@ public class StaticViewGeoObjectActivity extends FragmentActivity implements
 
         // We create the world and fill it ...
         mWorld = CustomWorldHelper.fromGvpGate(this);
+
+        Location lastKnownLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+        mWorld.setLocation(lastKnownLocation);
+        setLocationUI(lastKnownLocation);
+
         // .. and send it to the fragment
         mBeyondarFragment.setWorld(mWorld);
 
@@ -76,7 +113,12 @@ public class StaticViewGeoObjectActivity extends FragmentActivity implements
         // This method will replace all GeoObjects the images with a simple
         // static view
         replaceImagesByStaticViews(mWorld);
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        lm.removeUpdates(this);
     }
 
     private void replaceImagesByStaticViews(World world) {
@@ -136,4 +178,27 @@ public class StaticViewGeoObjectActivity extends FragmentActivity implements
         }
     }
 
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
+        Log.d(TAG, "onLocationChanged: " + location);
+        mWorld.setGeoPosition(location.getLatitude(), location.getLongitude());
+        setLocationUI(location);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Intent intent = new Intent(this, StaticViewGeoObjectActivity.class);
+        finish();
+        startActivity(intent);
+    }
+
+    private void setLocationUI(Location location) {
+        if (location == null) return;
+        runOnUiThread(() -> {
+            TextView tv = findViewById(R.id.textView);
+            tv.setText("Lat: " + location.getLatitude() + " Long: " + location.getLongitude());
+            Toast.makeText(this, "Location updated", Toast.LENGTH_SHORT).show();
+        });
+    }
 }
