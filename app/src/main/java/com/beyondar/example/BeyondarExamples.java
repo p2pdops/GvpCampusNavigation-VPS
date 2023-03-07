@@ -24,6 +24,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.gvpit.StaticViewGeoObjectActivity;
+
 public class BeyondarExamples extends Activity implements OnItemClickListener {
 
 	private ListView mLisViewt;

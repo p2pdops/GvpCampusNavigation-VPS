@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.beyondar.example;
+package com.gvpit;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -44,19 +42,25 @@ import com.beyondar.android.view.OnClickBeyondarObjectListener;
 import com.beyondar.android.world.BeyondarObject;
 import com.beyondar.android.world.BeyondarObjectList;
 import com.beyondar.android.world.World;
+import com.beyondar.example.CustomWorldHelper;
+import com.beyondar.example.R;
+import com.google.android.gms.location.CurrentLocationRequest;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 
-public class StaticViewGeoObjectActivity extends FragmentActivity implements OnClickBeyondarObjectListener, LocationListener {
+public class StaticViewGeoObjectActivity extends FragmentActivity
+        implements OnClickBeyondarObjectListener, LocationListener {
 
     private static final String TAG = "StaticViewGeoObjectActi";
     private static final String TMP_IMAGE_PREFIX = "viewImage_";
 
     private BeyondarFragmentSupport mBeyondarFragment;
     private World mWorld;
-    private LocationManager lm;
+    private FusedLocationProviderClient fusedLocationClient;
 
-    /**
-     * Called when the activity is first created.
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,43 +73,62 @@ public class StaticViewGeoObjectActivity extends FragmentActivity implements OnC
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         setContentView(R.layout.simple_camera);
+        mBeyondarFragment = (BeyondarFragmentSupport) getSupportFragmentManager().findFragmentById(R.id.beyondarFragment);
 
-        lm = getSystemService(LocationManager.class);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        mWorld = CustomWorldHelper.fromGvpGate(this);
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+//        mBeyondarFragment.onResume();
+
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.CAMERA}, 1);
             return;
         }
 
         // check and enable GPS
-        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-            return;
-        }
+        //        if (!fusedLocationClient.getLocationAvailability().) {
+        //            startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+        //            return;
+        //        }
 
-        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 10.0F, (LocationListener) this);
+        LocationRequest request = new LocationRequest.Builder(1000)
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .setDurationMillis(5000)
+                .build();
 
-        mBeyondarFragment = (BeyondarFragmentSupport) getSupportFragmentManager().findFragmentById(R.id.beyondarFragment);
+        fusedLocationClient.requestLocationUpdates(request, this, Looper.getMainLooper());
 
-        mBeyondarFragment.setMaxDistanceToRender(1000);
+        CurrentLocationRequest clr = new CurrentLocationRequest.Builder()
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .build();
+
+        fusedLocationClient.getCurrentLocation(clr, null)
+                .addOnSuccessListener(this, (Location location )-> {
+                    if (location != null) {
+                        Log.d(TAG, "onSuccess: " + location.getLatitude() + ", " + location.getLongitude());
+                        mWorld.setLocation(location);
+                        setLocationUI(location);
+                    }
+                }
+        );
+
+        mBeyondarFragment.setSensorDelay(300);
+        mBeyondarFragment.setPushAwayDistance(50);
 
         mBeyondarFragment.setOnClickBeyondarObjectListener(this);
 
-        // We create the world and fill it ...
-        mWorld = CustomWorldHelper.fromGvpGate(this);
-
-        Location lastKnownLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-        mWorld.setLocation(lastKnownLocation);
-        setLocationUI(lastKnownLocation);
 
         // .. and send it to the fragment
         mBeyondarFragment.setWorld(mWorld);
+        mBeyondarFragment.setMaxDistanceToRender(100);
+        mBeyondarFragment.setDistanceFactor(4);
 
         // We also can see the Frames per seconds
         mBeyondarFragment.showFPS(true);
@@ -118,7 +141,7 @@ public class StaticViewGeoObjectActivity extends FragmentActivity implements OnC
     @Override
     protected void onPause() {
         super.onPause();
-        lm.removeUpdates(this);
+        fusedLocationClient.removeLocationUpdates(this);
     }
 
     private void replaceImagesByStaticViews(World world) {
@@ -172,6 +195,13 @@ public class StaticViewGeoObjectActivity extends FragmentActivity implements OnC
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        onResume();
+    }
+
+
+    @Override
     public void onClickBeyondarObject(ArrayList<BeyondarObject> beyondarObjects) {
         if (beyondarObjects.size() > 0) {
             Toast.makeText(this, "Clicked on: " + beyondarObjects.get(0).getName(), Toast.LENGTH_LONG).show();
@@ -181,7 +211,7 @@ public class StaticViewGeoObjectActivity extends FragmentActivity implements OnC
     @Override
     public void onLocationChanged(@NonNull Location location) {
         Log.d(TAG, "onLocationChanged: " + location);
-        mWorld.setGeoPosition(location.getLatitude(), location.getLongitude());
+        mWorld.setLocation(location);
         setLocationUI(location);
     }
 

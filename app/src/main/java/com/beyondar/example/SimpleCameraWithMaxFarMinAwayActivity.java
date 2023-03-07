@@ -78,7 +78,7 @@ public class SimpleCameraWithMaxFarMinAwayActivity extends FragmentActivity impl
 		mSeekBarDistanceFactor.setProgress(50000);
 
 		// We create the world and fill it ...
-		mWorld = CustomWorldHelper.generateObjects(this);
+		mWorld = CustomWorldHelper.fromGvpGate(this);
 		// .. and send it to the fragment
 		mBeyondarFragment.setWorld(mWorld);
 	}
