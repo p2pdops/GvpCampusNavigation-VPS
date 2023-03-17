@@ -15,10 +15,6 @@
  */
 package com.gvpit;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -51,7 +47,11 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 
-public class StaticViewGeoObjectActivity extends FragmentActivity
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+public class DirectionsActivity extends FragmentActivity
         implements OnClickBeyondarObjectListener, LocationListener {
 
     private static final String TAG = "StaticViewGeoObjectActi";
@@ -87,8 +87,8 @@ public class StaticViewGeoObjectActivity extends FragmentActivity
         super.onResume();
 //        mBeyondarFragment.onResume();
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.CAMERA}, 1);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.CAMERA}, 1);
             return;
         }
 
@@ -218,7 +218,7 @@ public class StaticViewGeoObjectActivity extends FragmentActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Intent intent = new Intent(this, StaticViewGeoObjectActivity.class);
+        Intent intent = new Intent(this, DirectionsActivity.class);
         finish();
         startActivity(intent);
     }
@@ -231,4 +231,6 @@ public class StaticViewGeoObjectActivity extends FragmentActivity
             Toast.makeText(this, "Location updated", Toast.LENGTH_SHORT).show();
         });
     }
+
+
 }

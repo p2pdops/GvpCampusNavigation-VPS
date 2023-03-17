@@ -24,7 +24,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.gvpit.StaticViewGeoObjectActivity;
+import com.gvpit.MainActivity;
 
 public class BeyondarExamples extends Activity implements OnItemClickListener {
 
@@ -80,7 +80,7 @@ public class BeyondarExamples extends Activity implements OnItemClickListener {
 			openActivity(AttachViewToGeoObjectActivity.class);
 			break;
 		case 8:
-			openActivity(StaticViewGeoObjectActivity.class);
+			openActivity(MainActivity.class);
 			break;
 		case 9:
 			openActivity(SimpleCameraWithCustomFilterActivity.class);
