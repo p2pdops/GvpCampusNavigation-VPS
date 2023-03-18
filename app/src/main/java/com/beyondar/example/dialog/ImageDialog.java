@@ -11,7 +11,7 @@ import android.widget.ImageView;
 
 import androidx.fragment.app.DialogFragment;
 
-import com.beyondar.example.R;
+import com.gvpit.R;
 
 public class ImageDialog extends DialogFragment {
 

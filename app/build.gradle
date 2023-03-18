@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.beyondar.example'
+    namespace 'com.gvpit'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.beyondar.example"
+        applicationId "com.gvpit"
         minSdk 24
         targetSdk 33
         versionCode 1

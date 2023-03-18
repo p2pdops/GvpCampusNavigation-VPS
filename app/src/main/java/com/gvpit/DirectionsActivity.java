@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2014 BeyondAR
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.gvpit;
 
 import android.Manifest;
@@ -36,23 +21,27 @@ import com.beyondar.android.fragment.BeyondarFragmentSupport;
 import com.beyondar.android.util.ImageUtils;
 import com.beyondar.android.view.OnClickBeyondarObjectListener;
 import com.beyondar.android.world.BeyondarObject;
-import com.beyondar.android.world.BeyondarObjectList;
+import com.beyondar.android.world.GeoObject;
 import com.beyondar.android.world.World;
-import com.beyondar.example.CustomWorldHelper;
-import com.beyondar.example.R;
+import com.google.android.gms.maps.model.LatLng;
+import com.gvpit.R;
 import com.google.android.gms.location.CurrentLocationRequest;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class DirectionsActivity extends FragmentActivity
-        implements OnClickBeyondarObjectListener, LocationListener {
+public class DirectionsActivity extends FragmentActivity implements OnClickBeyondarObjectListener, LocationListener {
 
     private static final String TAG = "StaticViewGeoObjectActi";
     private static final String TMP_IMAGE_PREFIX = "viewImage_";
@@ -64,78 +53,78 @@ public class DirectionsActivity extends FragmentActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // The first thing that we do is to remove all the generated temporal
-        // images. Remember that the application needs external storage write
-        // permission.
         cleanTempFolder();
-
-        // Hide the window title.
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-
         setContentView(R.layout.simple_camera);
         mBeyondarFragment = (BeyondarFragmentSupport) getSupportFragmentManager().findFragmentById(R.id.beyondarFragment);
-
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-        mWorld = CustomWorldHelper.fromGvpGate(this);
-
+        mWorld = new World(this);
+        mWorld.setDefaultImage(R.drawable.beyondar_default_unknow_icon);
+        mWorld.setGeoPosition(17.820033, 83.343591);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-//        mBeyondarFragment.onResume();
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.CAMERA}, 1);
             return;
         }
 
-        // check and enable GPS
-        //        if (!fusedLocationClient.getLocationAvailability().) {
-        //            startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-        //            return;
-        //        }
-
-        LocationRequest request = new LocationRequest.Builder(1000)
-                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-                .setDurationMillis(5000)
-                .build();
+        LocationRequest request = new LocationRequest.Builder(1000).setPriority(Priority.PRIORITY_HIGH_ACCURACY).setDurationMillis(5000).build();
 
         fusedLocationClient.requestLocationUpdates(request, this, Looper.getMainLooper());
 
-        CurrentLocationRequest clr = new CurrentLocationRequest.Builder()
-                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-                .build();
+        CurrentLocationRequest clr = new CurrentLocationRequest.Builder().setPriority(Priority.PRIORITY_HIGH_ACCURACY).build();
 
-        fusedLocationClient.getCurrentLocation(clr, null)
-                .addOnSuccessListener(this, (Location location )-> {
-                    if (location != null) {
-                        Log.d(TAG, "onSuccess: " + location.getLatitude() + ", " + location.getLongitude());
-                        mWorld.setLocation(location);
-                        setLocationUI(location);
-                    }
-                }
-        );
+        fusedLocationClient.getCurrentLocation(clr, null).addOnSuccessListener(this, (Location location) -> {
+            if (location != null) {
+                Log.d(TAG, "onSuccess: " + location.getLatitude() + ", " + location.getLongitude());
+                mWorld.setLocation(location);
+                setLocationUI(location);
+            }
+        });
+
+        // TODO: Remove
+        onLocationChanged(new Location("test"));
+
 
         mBeyondarFragment.setSensorDelay(300);
         mBeyondarFragment.setPushAwayDistance(50);
-
-        mBeyondarFragment.setOnClickBeyondarObjectListener(this);
-
-
-        // .. and send it to the fragment
         mBeyondarFragment.setWorld(mWorld);
         mBeyondarFragment.setMaxDistanceToRender(100);
         mBeyondarFragment.setDistanceFactor(4);
-
-        // We also can see the Frames per seconds
         mBeyondarFragment.showFPS(true);
 
-        // This method will replace all GeoObjects the images with a simple
-        // static view
-        replaceImagesByStaticViews(mWorld);
+
+        try {
+
+            LatLng start = new Gson().fromJson(getIntent().getStringExtra("start"), LatLng.class);
+            LatLng end = new Gson().fromJson(getIntent().getStringExtra("end"), LatLng.class);
+            String endName = getIntent().getStringExtra("endName");
+            GeoObject endObject = new GeoObject(1000);
+            endObject.setGeoPosition(end.latitude, end.longitude);
+            endObject.setName(endName);
+
+            String json = getIntent().getStringExtra("directions");
+            JSONObject jsonObject = new JSONObject(json);
+            Log.d(TAG, "onResume: " + jsonObject);
+
+            DirectionsObject directionsObject = DirectionsObject.from(start, endObject, jsonObject);
+
+            for (int i = 0; i < directionsObject.directionDotsGeoObjects.length; i++) {
+                GeoObject geoObject = directionsObject.directionDotsGeoObjects[i];
+                Log.d(TAG, "onResume: " + i + " : " + geoObject.getLatitude() + ", " + geoObject.getLongitude());
+                mWorld.addBeyondarObject(geoObject);
+            }
+
+            mWorld.addBeyondarObject(directionsObject.end);
+
+            updateEndObject(directionsObject.end);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -144,29 +133,18 @@ public class DirectionsActivity extends FragmentActivity
         fusedLocationClient.removeLocationUpdates(this);
     }
 
-    private void replaceImagesByStaticViews(World world) {
+    private void updateEndObject(GeoObject endGeoObject) {
         String path = getTmpPath();
 
-        for (BeyondarObjectList beyondarList : world.getBeyondarObjectLists()) {
-            for (BeyondarObject beyondarObject : beyondarList) {
-                // First let's get the view, inflate it and change some stuff
-                View view = getLayoutInflater().inflate(R.layout.static_beyondar_object_view, null);
-                TextView textView = (TextView) view.findViewById(R.id.geoObjectName);
-                textView.setText(beyondarObject.getName());
-                try {
-                    // Now that we have it we need to store this view in the
-                    // storage in order to allow the framework to load it when
-                    // it will be need it
-                    String imageName = TMP_IMAGE_PREFIX + beyondarObject.getName() + ".png";
-                    ImageUtils.storeView(view, path, imageName);
-
-                    // If there are no errors we can tell the object to use the
-                    // view that we just stored
-                    beyondarObject.setImageUri(path + imageName);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        View view = getLayoutInflater().inflate(R.layout.static_beyondar_object_view, null);
+        TextView textView = (TextView) view.findViewById(R.id.geoObjectName);
+        textView.setText(endGeoObject.getName());
+        try {
+            String imageName = TMP_IMAGE_PREFIX + endGeoObject.getName() + ".png";
+            ImageUtils.storeView(view, path, imageName);
+            endGeoObject.setImageUri(path + imageName);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -211,6 +189,11 @@ public class DirectionsActivity extends FragmentActivity
     @Override
     public void onLocationChanged(@NonNull Location location) {
         Log.d(TAG, "onLocationChanged: " + location);
+        // TODO: Remove
+        Location location1 = new Location("gps");
+        location1.setLatitude(17.820954);
+        location1.setLongitude(83.341744);
+        location = location1;
         mWorld.setLocation(location);
         setLocationUI(location);
     }

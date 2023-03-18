@@ -28,6 +28,7 @@ import com.beyondar.android.fragment.BeyondarFragmentSupport;
 import com.beyondar.android.screenshot.OnScreenshotListener;
 import com.beyondar.android.world.World;
 import com.beyondar.example.dialog.ImageDialog;
+import com.gvpit.R;
 
 public class CameraWithScreenShotActivity extends FragmentActivity implements OnClickListener,
 		OnScreenshotListener {

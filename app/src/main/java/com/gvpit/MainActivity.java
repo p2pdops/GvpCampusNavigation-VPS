@@ -32,7 +32,6 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,13 +48,16 @@ import com.beyondar.android.world.BeyondarObjectList;
 import com.beyondar.android.world.GeoObject;
 import com.beyondar.android.world.World;
 import com.beyondar.example.CustomWorldHelper;
-import com.beyondar.example.R;
+import com.gvpit.R;
 import com.google.android.gms.location.CurrentLocationRequest;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,8 +66,7 @@ import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
-public class MainActivity extends FragmentActivity
-        implements OnClickBeyondarObjectListener, LocationListener {
+public class MainActivity extends FragmentActivity implements OnClickBeyondarObjectListener, LocationListener {
 
     private static final String TAG = "StaticViewGeoObjectActi";
     private static final String TMP_IMAGE_PREFIX = "viewImage_";
@@ -111,26 +112,19 @@ public class MainActivity extends FragmentActivity
         //            return;
         //        }
 
-        LocationRequest request = new LocationRequest.Builder(1000)
-                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-                .setDurationMillis(5000)
-                .build();
+        LocationRequest request = new LocationRequest.Builder(1000).setPriority(Priority.PRIORITY_HIGH_ACCURACY).setDurationMillis(5000).build();
 
         fusedLocationClient.requestLocationUpdates(request, this, Looper.getMainLooper());
 
-        CurrentLocationRequest clr = new CurrentLocationRequest.Builder()
-                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-                .build();
+        CurrentLocationRequest clr = new CurrentLocationRequest.Builder().setPriority(Priority.PRIORITY_HIGH_ACCURACY).build();
 
-        fusedLocationClient.getCurrentLocation(clr, null)
-                .addOnSuccessListener(this, (Location location) -> {
-                            if (location != null) {
-                                Log.d(TAG, "onSuccess: " + location.getLatitude() + ", " + location.getLongitude());
-                                mWorld.setLocation(location);
-                                setLocationUI(location);
-                            }
-                        }
-                );
+        fusedLocationClient.getCurrentLocation(clr, null).addOnSuccessListener(this, (Location location) -> {
+            if (location != null) {
+                Log.d(TAG, "onSuccess: " + location.getLatitude() + ", " + location.getLongitude());
+                mWorld.setLocation(location);
+                setLocationUI(location);
+            }
+        });
 
         mBeyondarFragment.setSensorDelay(300);
         mBeyondarFragment.setPushAwayDistance(50);
@@ -215,49 +209,55 @@ public class MainActivity extends FragmentActivity
         onResume();
     }
 
+    ProgressDialog progressDialog;
 
     @Override
     public void onClickBeyondarObject(ArrayList<BeyondarObject> beyondarObjects) {
         if (beyondarObjects.size() > 0) {
-            GeoObject beyondarObject = (GeoObject) beyondarObjects.get(0);
-            new AlertDialog.Builder(this, androidx.appcompat.R.style.AlertDialog_AppCompat_Light)
-                    .setTitle("Navigate to " + beyondarObject.getName() + " ?")
-                    .setMessage("Latitude: " + beyondarObject.getLatitude() + " Longitude: " + beyondarObject.getLongitude())
-                    .setPositiveButton("Yes", (dialog, a) -> {
+            GeoObject endBeyondarObject = (GeoObject) beyondarObjects.get(0);
+            new AlertDialog.Builder(this, androidx.appcompat.R.style.AlertDialog_AppCompat_Light).setTitle("Navigate to " + endBeyondarObject.getName() + " ?").setMessage("Latitude: " + endBeyondarObject.getLatitude() + " Longitude: " + endBeyondarObject.getLongitude()).setPositiveButton("Yes", (dialog, a) -> {
 
-                        ProgressDialog progressDialog = new ProgressDialog(MainActivity.this, androidx.appcompat.R.style.AlertDialog_AppCompat_Light);
-                        progressDialog.setTitle("Please wait while we're calculating the directions...");
-                        progressDialog.setMessage("Please wait while we calculate the directions to " + beyondarObject.getName());
-                        progressDialog.setCancelable(false);
-                        progressDialog.isIndeterminate();
-                        progressDialog.show();
-
-                        new Thread(() -> {
-                            OkHttpClient client = new OkHttpClient();
-                            Request request = new Request.Builder()
-                                    .url("https://routing.openstreetmap.de/routed-bike/route/v1/driving/" + mWorld.getLongitude() + "," + mWorld.getLatitude() + ";" + beyondarObject.getLongitude() + "," + beyondarObject.getLatitude() + "?overview=false&alternatives=true&steps=true")
-                                    .build();
-                            try {
-                                String json = client.newCall(request).execute().body().string();
-                                JSONObject jsonObject = new JSONObject(json);
-                                DirectionsObject object = DirectionsObject.from(beyondarObject, jsonObject);
-                                Log.d(TAG, "onClickBeyondarObject: Result" + jsonObject);
+                progressDialog = new ProgressDialog(MainActivity.this, androidx.appcompat.R.style.AlertDialog_AppCompat_Light);
+                progressDialog.setTitle("Please wait while we're calculating the directions...");
+                progressDialog.setMessage("Please wait while we calculate the directions to " + endBeyondarObject.getName());
+                progressDialog.setCancelable(false);
+                progressDialog.isIndeterminate();
+                runOnUiThread(progressDialog::show);
+                LatLng startLatLng = new LatLng(mWorld.getLatitude(), mWorld.getLongitude());
+                Log.d(TAG, "onClickBeyondarObject: start: " + startLatLng);
+                Log.d(TAG, "onClickBeyondarObject: end: " + endBeyondarObject.getLatitude() + ", " + endBeyondarObject.getLongitude());
+                new Thread(() -> {
+                    OkHttpClient client = new OkHttpClient();
+                    Request request = new Request.Builder()
+                            .url("https://routing.openstreetmap.de/routed-bike/route/v1/driving/" + mWorld.getLongitude() + "," + mWorld.getLatitude() + ";" +
+                                    endBeyondarObject.getLongitude() + "," + endBeyondarObject.getLatitude() + "?overview=false&alternatives=true&steps=true")
+                            .build();
+                    try {
+                        String json = client.newCall(request).execute().body().string();
+                        runOnUiThread(() -> {
+                            if (progressDialog.isShowing()) {
                                 progressDialog.dismiss();
-                            } catch (IOException | JSONException e) {
-                                throw new RuntimeException(e);
                             }
-                        }).start();
+                        });
+                        Intent intent = new Intent(MainActivity.this, DirectionsActivity.class);
+                        intent.putExtra("start", new Gson().toJson(startLatLng));
+                        intent.putExtra("end", new Gson().toJson(new LatLng(endBeyondarObject.getLatitude(), endBeyondarObject.getLongitude())));
+                        intent.putExtra("endName", endBeyondarObject.getName());
+                        intent.putExtra("directions", json);
+                        startActivity(intent);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).start();
 
 
 //                        Toast.makeText(this,
 //                                "Navigating to " + beyondarObject.getLatitude() + " " + beyondarObject.getLongitude()
 //
 //                                , Toast.LENGTH_LONG).show();
-                    })
-                    .setNegativeButton("No", (dialog, a) -> {
-                        dialog.dismiss();
-                    })
-                    .show();
+            }).setNegativeButton("No", (dialog, a) -> {
+                dialog.dismiss();
+            }).show();
         }
     }
 
@@ -288,5 +288,13 @@ public class MainActivity extends FragmentActivity
             tv.setText("Lat: " + location.getLatitude() + " Long: " + location.getLongitude());
             Toast.makeText(this, "Location updated", Toast.LENGTH_SHORT).show();
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 }

@@ -28,6 +28,7 @@ import com.beyondar.android.fragment.BeyondarFragmentSupport;
 import com.beyondar.android.plugin.radar.RadarView;
 import com.beyondar.android.plugin.radar.RadarWorldPlugin;
 import com.beyondar.android.world.World;
+import com.gvpit.R;
 
 public class SimpleCameraWithRadarActivity extends FragmentActivity implements OnSeekBarChangeListener {
 

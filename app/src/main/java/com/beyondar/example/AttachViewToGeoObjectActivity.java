@@ -38,6 +38,7 @@ import com.beyondar.android.view.BeyondarViewAdapter;
 import com.beyondar.android.view.OnClickBeyondarObjectListener;
 import com.beyondar.android.world.BeyondarObject;
 import com.beyondar.android.world.World;
+import com.gvpit.R;
 
 public class AttachViewToGeoObjectActivity extends FragmentActivity implements OnClickBeyondarObjectListener,
 		OnClickListener {

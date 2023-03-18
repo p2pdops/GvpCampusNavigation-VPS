@@ -16,4 +16,16 @@ public class StepManeuver {
         this.duration = duration;
         this.distance = distance;
     }
+
+    @Override
+    public String toString() {
+        return "StepManeuver{" +
+                "type='" + type + '\'' +
+                ", modifier='" + modifier + '\'' +
+                ", lat=" + lat +
+                ", lng=" + lng +
+                ", duration='" + duration + '\'' +
+                ", distance='" + distance + '\'' +
+                '}';
+    }
 }

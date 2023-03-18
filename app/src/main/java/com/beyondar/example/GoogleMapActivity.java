@@ -28,6 +28,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.Marker;
+import com.gvpit.R;
 
 public class GoogleMapActivity extends FragmentActivity implements OnMarkerClickListener {
 

@@ -37,6 +37,7 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.gvpit.R;
 
 public class BeyondarLocationManagerMapActivity extends FragmentActivity implements OnMarkerClickListener,
         OnClickListener {

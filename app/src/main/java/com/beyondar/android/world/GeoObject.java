@@ -151,4 +151,13 @@ public class GeoObject extends BeyondarObject {
 	public double calculateDistanceMeters(double longitude, double latitude) {
 		return Distance.calculateDistanceMeters(getLongitude(), getLatitude(), longitude, latitude);
 	}
+
+	@Override
+	public String toString() {
+		return "GeoObject{" +
+				"mLongitude=" + mLongitude +
+				", mLatitude=" + mLatitude +
+				", mAltitude=" + mAltitude +
+				'}';
+	}
 }

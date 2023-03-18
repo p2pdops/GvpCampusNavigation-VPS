@@ -31,6 +31,7 @@ import com.beyondar.android.view.OnClickBeyondarObjectListener;
 import com.beyondar.android.view.OnTouchBeyondarViewListener;
 import com.beyondar.android.world.BeyondarObject;
 import com.beyondar.android.world.World;
+import com.gvpit.R;
 
 public class ChangeGeoObjectImagesOnTouchActivity extends FragmentActivity implements OnTouchBeyondarViewListener,
         OnClickBeyondarObjectListener {
