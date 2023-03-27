@@ -64,55 +64,79 @@ public class DirectionsObject {
 
     public static GeoObject[] calculateDirectionsDots(double currLat, double currLng, StepManeuver[] steps) {
         ArrayList<GeoObject> directionDotsGeoObjects = new ArrayList<>();
+        String lastTurn = "none";
         for (int i = 0; i < steps.length; i++) {
             StepManeuver maneuver = steps[i];
             if (i == 0) {
                 // Depart
-                directionDotsGeoObjects.add(geoFromLatLng(maneuver.lat, maneuver.lng, R.drawable.ic_direction_dots)); // start
+                directionDotsGeoObjects.add(geoFromLatLng(maneuver.lat, maneuver.lng, R.drawable.fwd_arrow)); // start
                 currLat = maneuver.lat;
                 currLng = maneuver.lng;
                 Log.d(TAG, "calculateDirectionsDots: depart: " + maneuver.lat + ", " + maneuver.lng);
             } else if (i == steps.length - 1) {
                 // arrive
-
                 Log.d(TAG, "calculateDirectionsDots: " + maneuver.type + " " + maneuver.modifier + ": " + maneuver.lat + ", " + maneuver.lng);
                 double distance = LocationCalc.haversine(currLat, currLng, maneuver.lat, maneuver.lng) * 1000;
                 // b/w current & maneuver.location add dots at 2.5m intervals
                 double latDiff = maneuver.lat - currLat;
                 double lngDiff = maneuver.lng - currLng;
-                double latStep = latDiff / distance * 2.5;
-                double lngStep = lngDiff / distance * 2.5;
+                double latStep = latDiff / distance * 4;
+                double lngStep = lngDiff / distance * 4;
                 double lat = currLat;
                 double lng = currLng;
 
-                while (distance > 2.5) {
+                while (distance > 4) {
                     Log.d(TAG, "calculateDirectionsDots: > >" + lat + ", " + lng + " distance: " + distance + "m");
-                    directionDotsGeoObjects.add(geoFromLatLng(lat, lng, R.drawable.ic_direction_dots));
+
+                    switch (lastTurn) {
+                        case "none":
+                            directionDotsGeoObjects.add(geoFromLatLng(lat, lng, R.drawable.fwd_arrow));
+                            break;
+                        case "right":
+                            directionDotsGeoObjects.add(geoFromLatLng(lat, lng, R.drawable.forward_right));
+                            break;
+                        case "left":
+                            directionDotsGeoObjects.add(geoFromLatLng(lat, lng, R.drawable.forward_left));
+                            break;
+                    }
+                    directionDotsGeoObjects.add(geoFromLatLng(lat, lng, R.drawable.fwd_arrow));
                     lat += latStep;
                     lng += lngStep;
-                    distance -= 2.5;
+                    distance -= 4;
                 }
 
                 directionDotsGeoObjects.add(geoFromLatLng(maneuver.lat, maneuver.lng, R.drawable.flag));
                 break;
             } else {
+
+                int current_drawable = maneuver.modifier.equals("right") ? R.drawable.forward_right : R.drawable.forward_left;
+
                 // turns
+
+                lastTurn = maneuver.modifier;
+
                 Log.d(TAG, "calculateDirectionsDots: " + maneuver.type + " " + maneuver.modifier + ": " + maneuver.lat + ", " + maneuver.lng);
                 double distance = LocationCalc.haversine(currLat, currLng, maneuver.lat, maneuver.lng) * 1000;
-                // b/w current & maneuver.location add dots at 2.5m intervals
+                // b/w current & maneuver.location add dots at 2.4m intervals
                 double latDiff = maneuver.lat - currLat;
                 double lngDiff = maneuver.lng - currLng;
-                double latStep = latDiff / distance * 2.5;
-                double lngStep = lngDiff / distance * 2.5;
+                double latStep = latDiff / distance * 3.5;
+                double lngStep = lngDiff / distance * 3.5;
                 double lat = currLat;
                 double lng = currLng;
 
-                while (distance > 2.5) {
+                if (maneuver.modifier.equals("right")) {
+                    directionDotsGeoObjects.add(geoFromLatLng(maneuver.lat, maneuver.lng, R.drawable.right_arrow));
+                } else if (maneuver.modifier.equals("left")) {
+                    directionDotsGeoObjects.add(geoFromLatLng(maneuver.lat, maneuver.lng, R.drawable.left_arrow));
+                }
+
+                while (distance > 3.5) {
                     Log.d(TAG, "calculateDirectionsDots: > >" + lat + ", " + lng + " distance: " + distance + "m");
-                    directionDotsGeoObjects.add(geoFromLatLng(lat, lng, R.drawable.ic_direction_dots));
+                    directionDotsGeoObjects.add(geoFromLatLng(lat, lng, current_drawable));
                     lat += latStep;
                     lng += lngStep;
-                    distance -= 2.5;
+                    distance -= 3.5;
                 }
 
                 currLat = maneuver.lat;
@@ -122,9 +146,7 @@ public class DirectionsObject {
         return directionDotsGeoObjects.toArray(new GeoObject[0]);
     }
 
-    static GeoObject geoFromLatLng(
-            double lat, double lng,
-            @DrawableRes int drawableRes) {
+    static GeoObject geoFromLatLng(double lat, double lng, @DrawableRes int drawableRes) {
         GeoObject geoObject = new GeoObject();
         geoObject.setGeoPosition(lat, lng, 0.0);
         geoObject.setImageResource(drawableRes);
@@ -133,13 +155,6 @@ public class DirectionsObject {
 
     @Override
     public String toString() {
-        return "DirectionsObject{" +
-                "distance=" + distance +
-                ", duration=" + duration +
-                ", start=" + start +
-                ", end=" + end +
-                ", steps=" + Arrays.toString(steps) +
-                ", directionDotsGeoObjects=" + Arrays.toString(directionDotsGeoObjects) +
-                '}';
+        return "DirectionsObject{" + "distance=" + distance + ", duration=" + duration + ", start=" + start + ", end=" + end + ", steps=" + Arrays.toString(steps) + ", directionDotsGeoObjects=" + Arrays.toString(directionDotsGeoObjects) + '}';
     }
 }

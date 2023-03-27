@@ -86,8 +86,8 @@ public class DirectionsActivity extends FragmentActivity implements OnClickBeyon
             }
         });
 
-        // TODO: Remove
-        onLocationChanged(new Location("test"));
+//        // TODO: Remove
+//        onLocationChanged(new Location("test"));
 
 
         mBeyondarFragment.setSensorDelay(300);
@@ -189,11 +189,11 @@ public class DirectionsActivity extends FragmentActivity implements OnClickBeyon
     @Override
     public void onLocationChanged(@NonNull Location location) {
         Log.d(TAG, "onLocationChanged: " + location);
-        // TODO: Remove
-        Location location1 = new Location("gps");
-        location1.setLatitude(17.820954);
-        location1.setLongitude(83.341744);
-        location = location1;
+//        // TODO: Remove
+//        Location location1 = new Location("gps");
+//        location1.setLatitude(17.820954);
+//        location1.setLongitude(83.341744);
+//        location = location1;
         mWorld.setLocation(location);
         setLocationUI(location);
     }

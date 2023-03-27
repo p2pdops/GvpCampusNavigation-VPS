@@ -75,6 +75,8 @@ public class MainActivity extends FragmentActivity implements OnClickBeyondarObj
     private World mWorld;
     private FusedLocationProviderClient fusedLocationClient;
 
+    private CustomWorldHelper.PlaceData[] mPlaces;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,9 +94,37 @@ public class MainActivity extends FragmentActivity implements OnClickBeyondarObj
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
+        mWorld = new World(this);
+
         mWorld = CustomWorldHelper.fromGvpGate(this);
+        mPlaces = CustomWorldHelper.getPlaces(this);
 
     }
+
+    void updateWordPlaceObjects(double lat, double lng) {
+        ArrayList<CustomWorldHelper.PlaceData> eligiblePlaces = new ArrayList<>();
+
+        new Thread(() -> {
+            for (CustomWorldHelper.PlaceData place : mPlaces) {
+                if (place.type.equals("block") ||
+                        LocationCalc.haversine(place.latitude, place.longitude, lat, lng) * 1000 <= 50
+                ) eligiblePlaces.add(place);
+            }
+
+            runOnUiThread(() -> {
+                mWorld.clearWorld();
+                for (CustomWorldHelper.PlaceData place : eligiblePlaces) {
+                    GeoObject placeGO = new GeoObject(place.id);
+                    placeGO.setGeoPosition(place.latitude, place.longitude);
+                    placeGO.setImageResource(R.drawable.flag);
+                    placeGO.setName(place.name);
+                    mWorld.addBeyondarObject(placeGO);
+                }
+                replaceImagesByStaticViews(mWorld);
+            });
+        }).start();
+    }
+
 
     @Override
     protected void onResume() {
@@ -139,8 +169,10 @@ public class MainActivity extends FragmentActivity implements OnClickBeyondarObj
 
         // We also can see the Frames per seconds
         mBeyondarFragment.showFPS(true);
-        // TODO: Remove
-        onLocationChanged(new Location("test"));
+        updateWordPlaceObjects(0, 0);
+
+//        // TODO: Remove
+//        onLocationChanged(new Location("test"));
         // This method will replace all GeoObjects the images with a simple
         // static view
         replaceImagesByStaticViews(mWorld);
@@ -228,10 +260,7 @@ public class MainActivity extends FragmentActivity implements OnClickBeyondarObj
                 Log.d(TAG, "onClickBeyondarObject: end: " + endBeyondarObject.getLatitude() + ", " + endBeyondarObject.getLongitude());
                 new Thread(() -> {
                     OkHttpClient client = new OkHttpClient();
-                    Request request = new Request.Builder()
-                            .url("https://routing.openstreetmap.de/routed-bike/route/v1/driving/" + mWorld.getLongitude() + "," + mWorld.getLatitude() + ";" +
-                                    endBeyondarObject.getLongitude() + "," + endBeyondarObject.getLatitude() + "?overview=false&alternatives=true&steps=true")
-                            .build();
+                    Request request = new Request.Builder().url("https://routing.openstreetmap.de/routed-bike/route/v1/driving/" + mWorld.getLongitude() + "," + mWorld.getLatitude() + ";" + endBeyondarObject.getLongitude() + "," + endBeyondarObject.getLatitude() + "?overview=false&alternatives=true&steps=true").build();
                     try {
                         String json = client.newCall(request).execute().body().string();
                         runOnUiThread(() -> {
@@ -246,15 +275,10 @@ public class MainActivity extends FragmentActivity implements OnClickBeyondarObj
                         intent.putExtra("directions", json);
                         startActivity(intent);
                     } catch (IOException e) {
+                        Toast.makeText(MainActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                         throw new RuntimeException(e);
                     }
                 }).start();
-
-
-//                        Toast.makeText(this,
-//                                "Navigating to " + beyondarObject.getLatitude() + " " + beyondarObject.getLongitude()
-//
-//                                , Toast.LENGTH_LONG).show();
             }).setNegativeButton("No", (dialog, a) -> {
                 dialog.dismiss();
             }).show();
@@ -264,12 +288,13 @@ public class MainActivity extends FragmentActivity implements OnClickBeyondarObj
     @Override
     public void onLocationChanged(@NonNull Location location) {
         Log.d(TAG, "onLocationChanged: " + location);
-        // TODO: Remove
-        Location location1 = new Location("gps");
-        location1.setLatitude(17.820954);
-        location1.setLongitude(83.341744);
-        location = location1;
+//        // TODO: Remove
+//        Location location1 = new Location("gps");
+//        location1.setLatitude(17.820954);
+//        location1.setLongitude(83.341744);
+//        location = location1;
         mWorld.setLocation(location);
+        updateWordPlaceObjects(location.getLatitude(), location.getLongitude());
         setLocationUI(location);
     }
 

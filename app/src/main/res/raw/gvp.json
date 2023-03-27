@@ -1,315 +1,441 @@
 [
   {
+    "id": 1,
+    "type": "block",
     "name": "Department of Physical Education",
     "latitude": 17.82059,
     "longitude": 83.34295
   },
   {
-    "name": "S5 block",
-    "latitude": 17.82059,
-    "longitude": 83.34295
-  },
-  {
+    "id": 2,
+    "type": "class",
     "name": "Transportation Engineering Lab",
     "latitude": 17.820611,
     "longitude": 83.342984
   },
   {
+    "id": 3,
+    "type": "block",
     "name": "Xerox Shop",
     "latitude": 17.820092,
     "longitude": 83.34317
   },
   {
+    "id": 4,
+    "type": "block",
     "name": "B8 Civil Engineering Block",
     "latitude": 17.820279,
     "longitude": 83.342871
   },
   {
+    "id": 5,
+    "type": "class",
     "name": "Geothermal Engineering Lab",
     "latitude": 17.8207,
     "longitude": 83.342882
   },
   {
+    "id": 6,
+    "type": "class",
     "name": "Structural Engineering  Research Lab",
     "latitude": 17.820358,
     "longitude": 83.342848
   },
   {
+    "id": 7,
+    "type": "class",
     "name": "Consultancy Division",
     "latitude": 17.820395,
     "longitude": 83.342824
   },
   {
+    "id": 8,
+    "type": "class",
     "name": "Advanced Mechanical Design Lab",
     "latitude": 17820808,
     "longitude": 83.342772
   },
   {
+    "id": 9,
+    "type": "class",
     "name": "Manufacturing Technology-1 Lab",
     "latitude": 17.820793,
     "longitude": 83.342746
   },
   {
+    "id": 10,
+    "type": "block",
     "name": "B12 Mechanical Engineering Block",
     "latitude": 17.820799,
     "longitude": 83.342629
   },
   {
+    "id": 11,
+    "type": "block",
     "name": "B7 Chemical Engineering Block",
     "latitude": 17.820648,
     "longitude": 83.342736
   },
   {
+    "id": 12,
+    "type": "class",
     "name": "Manufacturing Technology-2 Lab",
     "latitude": 17.821144,
     "longitude": 83.341936
   },
   {
+    "id": 13,
+    "type": "class",
     "name": "Workshop-1",
     "latitude": 17.82078,
     "longitude": 83.342562
   },
   {
+    "id": 14,
+    "type": "class",
     "name": "Quality Management Technical services(Electrical)",
     "latitude": 17.820688,
     "longitude": 83.342615
   },
   {
+    "id": 15,
+    "type": "class",
     "name": "B7 101 Classroom",
     "latitude": 17.82063,
     "longitude": 83.342553
   },
   {
+    "id": 16,
+    "type": "block",
     "name": "B6 Block",
     "latitude": 17.82076,
     "longitude": 83.342164
   },
   {
+    "id": 17,
+    "type": "class",
     "name": "Mechanical Measurements Lab",
     "latitude": 17.821191,
     "longitude": 83.341956
   },
   {
+    "id": 18,
+    "type": "class",
     "name": "Workshop-2",
     "latitude": 17.820785,
     "longitude": 83.342466
   },
   {
-    "name": "Department of Traning and Placements",
+    "id": 19,
+    "type": "block",
+    "name": "Department of Training and Placements",
     "latitude": 17.820574,
     "longitude": 83.342463
   },
   {
+    "id": 20,
+    "type": "class",
     "name": "Manufacturing Technology-2 Lab",
     "latitude": 17.821183,
     "longitude": 83.341845
   },
   {
+    "id": 21,
+    "type": "class",
     "name": "Fluid Mechanics and Hydraulic Machinery Lab",
     "latitude": 17.820855,
     "longitude": 83.342435
   },
   {
+    "id": 22,
+    "type": "class",
     "name": "Cam and Robotics Lab",
     "latitude": 17.821163,
     "longitude": 83.341863
   },
   {
+    "id": 23,
+    "type": "class",
     "name": "Photonics Research Lab",
     "latitude": 17.82115,
     "longitude": 83.341944
   },
   {
+    "id": 24,
+    "type": "class",
     "name": "APSSDC Office",
     "latitude": 17.820946,
     "longitude": 83.342427
   },
   {
-    "name": "B5",
+    "id": 25,
+    "type": "block",
+    "name": "B5 Block",
     "latitude": 17.820843,
     "longitude": 83.342228
   },
   {
+    "id": 26,
+    "type": "class",
     "name": "Canteen",
     "latitude": 17.820954,
     "longitude": 83.341824
   },
   {
+    "id": 27,
+    "type": "class",
     "name": "Thermal Engineering Lab",
     "latitude": 17.820975,
     "longitude": 83.342386
   },
   {
+    "id": 28,
+    "type": "class",
     "name": "Internal Quality assurance cell",
     "latitude": 17.820941,
     "longitude": 83.341764
   },
   {
+    "id": 29,
+    "type": "class",
     "name": "Data Center",
     "latitude": 17.820954,
     "longitude": 83.341744
   },
   {
+    "id": 30,
+    "type": "class",
     "name": "B4 Department of Information Technology",
     "latitude": 17.820954,
     "longitude": 83.341744
   },
   {
+    "id": 31,
+    "type": "class",
     "name": "Dbms|Wp|Software testing|App development|Python|Networking lab",
     "latitude": 17.821104,
     "longitude": 83.341458
   },
   {
+    "id": 32,
+    "type": "class",
     "name": "Ds|Oop|Embedded System-1|Computer Networks|Uml|Dwdm lab",
     "latitude": 17.82112,
     "longitude": 83.341461
   },
   {
+    "id": 33,
+    "type": "class",
     "name": "B4-103",
     "latitude": 17.821118,
     "longitude": 83.341472
   },
   {
-    "name": "B0-Electrical and Electronics Engineering",
+    "id": 34,
+    "type": "block",
+    "name": "B0 Electrical and Electronics Engineering",
     "latitude": 17.82134,
     "longitude": 83.341538
   },
   {
+    "id": 35,
+    "type": "class",
     "name": "B4-106 Faculty rooms",
     "latitude": 17.821118,
     "longitude": 83.341472
   },
   {
-    "name": "B4-Department of Infromation Technology Office",
+    "id": 36,
+    "type": "block",
+    "name": "B4-Department of Information Technology Office",
     "latitude": 17.821146,
     "longitude": 83.341382
   },
   {
+    "id": 37,
+    "type": "class",
     "name": "Integrated Electrical Machines & Drive Systems Lab",
     "latitude": 17.821382,
     "longitude": 83.341461
   },
   {
+    "id": 38,
+    "type": "class",
     "name": "Power electronics Lab",
     "latitude": 17.821399,
     "longitude": 83.341533
   },
   {
+    "id": 39,
+    "type": "block",
     "name": "Department of Electrical and Electronics Engineering",
     "latitude": 17.821082,
     "longitude": 83.341524
   },
   {
+    "id": 40,
+    "type": "class",
     "name": "Electrical Machines and Drives Lab",
     "latitude": 17.821187,
     "longitude": 83.341591
   },
   {
+    "id": 41,
+    "type": "class",
     "name": "Electrical Machines and Drives Lab",
     "latitude": 17.821177,
     "longitude": 83.3416
   },
   {
+    "id": 42,
+    "type": "class",
     "name": "B1-Electronics and Communication Engineering",
     "latitude": 17.821524,
     "longitude": 83.341283
   },
   {
+    "id": 43,
+    "type": "class",
     "name": "B1-104 Lecture hall",
     "latitude": 17.821569,
     "longitude": 83.341284
   },
   {
+    "id": 44,
+    "type": "class",
     "name": "B1-103 Lecture hall",
     "latitude": 17.821613,
     "longitude": 83.341282
   },
   {
+    "id": 45,
+    "type": "class",
     "name": "B1-102 Lecture hall",
     "latitude": 17.82154,
     "longitude": 83.341301
   },
   {
+    "id": 46,
+    "type": "class",
     "name": "B1-101 Scientific Industrial Research Centre",
     "latitude": 17.821406,
     "longitude": 83.341281
   },
   {
+    "id": 47,
+    "type": "class",
     "name": "Main gate Entrance and exit",
     "latitude": 17.821598,
     "longitude": 83.341334
   },
   {
+    "id": 48,
+    "type": "block",
     "name": "Student Parking",
     "latitude": 17.819883,
     "longitude": 83.343494
   },
   {
+    "id": 49,
+    "type": "block",
     "name": "Admin Block",
     "latitude": 17.821442,
     "longitude": 83.341437
   },
   {
+    "id": 50,
+    "type": "block",
+    "name": "First Year Block",
+    "latitude": 17.821045,
+    "longitude": 83.342347
+  },
+  {
+    "id": 51,
+    "type": "class",
     "name": "B6-101  Physical Chemistry Lab",
     "latitude": 17.820605,
     "longitude": 83.342217
   },
   {
+    "id": 52,
+    "type": "class",
     "name": "B6-102  Chemistry Lab",
     "latitude": 17.820682,
     "longitude": 83.342235
   },
   {
+    "id": 53,
+    "type": "class",
     "name": "B6-103  Organic Chemistry Lab",
     "latitude": 17.820774,
     "longitude": 83.342188
   },
   {
+    "id": 54,
+    "type": "class",
     "name": "B6-104  Department of Chemistry",
     "latitude": 17.820818,
     "longitude": 83.342204
   },
   {
+    "id": 55,
+    "type": "class",
     "name": "B6-105  Faculty Rooms",
     "latitude": 17.820824,
     "longitude": 83.342203
   },
   {
+    "id": 56,
+    "type": "class",
     "name": "B6-106  Gents Toilet",
     "latitude": 17.820815,
     "longitude": 83.342195
   },
   {
+    "id": 57,
+    "type": "class",
     "name": "B6-107  Stationery",
-    "latitude": 17.821117,
-    "longitude": 83.341613
+    "latitude": 17.82059,
+    "longitude": 83.342213
   },
   {
+    "id": 58,
+    "type": "class",
     "name": "B-3  Computer Science and Engineering",
     "latitude": 17.82142,
     "longitude": 83.341162
   },
   {
+    "id": 59,
+    "type": "class",
     "name": "B3-101",
     "latitude": 17.821337,
     "longitude": 83.341176
   },
   {
+    "id": 60,
+    "type": "block",
     "name": "CSE Block",
     "latitude": 17.821373,
     "longitude": 83.341149
   },
   {
+    "id": 61,
+    "type": "class",
     "name": "CSE faculty rooms",
     "latitude": 17.821373,
     "longitude": 83.341149
   },
   {
+    "id": 62,
+    "type": "block",
     "name": "Administration Office",
     "latitude": 17.821176,
     "longitude": 83.341306
   },
   {
+    "id": 63,
+    "type": "class",
     "name": "Girls Hostel",
     "latitude": 17.821678,
     "longitude": 83.341011

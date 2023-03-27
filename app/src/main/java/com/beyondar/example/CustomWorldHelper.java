@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+
 import com.gvpit.R;
 
 @SuppressLint("SdCardPath")
@@ -197,13 +198,7 @@ public class CustomWorldHelper {
         return sharedWorld;
     }
 
-
-    public static World fromGvpGate(Context context) {
-        sharedWorld = new World(context);
-        sharedWorld.setDefaultImage(R.drawable.beyondar_default_unknow_icon);
-        sharedWorld.setGeoPosition(17.820033, 83.343591);
-
-        // load gvp.json from raw folder
+    public static PlaceData[] getPlaces(Context context) {
         InputStream is = context.getResources().openRawResource(R.raw.gvp);
         String json = "";
         try {
@@ -214,7 +209,15 @@ public class CustomWorldHelper {
             e.printStackTrace();
         }
 
-        PlaceData[] places = new Gson().fromJson(json, PlaceData[].class);
+        return new Gson().fromJson(json, PlaceData[].class);
+    }
+
+    public static World fromGvpGate(Context context) {
+        sharedWorld = new World(context);
+        sharedWorld.setDefaultImage(R.drawable.beyondar_default_unknow_icon);
+        sharedWorld.setGeoPosition(17.820033, 83.343591);
+
+        PlaceData[] places = getPlaces(context);
         for (int i = 0; i < places.length; i++) {
             GeoObject placeGO = new GeoObject(i + 100);
             placeGO.setGeoPosition(places[i].latitude, places[i].longitude);
@@ -227,18 +230,29 @@ public class CustomWorldHelper {
     }
 
 
-    static class PlaceData {
-        String name;
-        double latitude;
-        double longitude;
+    public class PlaceData {
+        public int id;
+        public String name;
+        public String type;
+        public double latitude;
+        public double longitude;
 
-        public PlaceData() {
-        }
+        public PlaceData() {}
 
-        public PlaceData(String name, double latitude, double longitude) {
+        public PlaceData(int id, String name, String type, double latitude, double longitude) {
+            this.id = id;
             this.name = name;
+            this.type = type;
             this.latitude = latitude;
             this.longitude = longitude;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
         }
 
         public String getName() {
@@ -247,6 +261,14 @@ public class CustomWorldHelper {
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
         }
 
         public double getLatitude() {
@@ -268,7 +290,9 @@ public class CustomWorldHelper {
         @Override
         public String toString() {
             return "PlaceData{" +
-                    "name='" + name + '\'' +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    ", type='" + type + '\'' +
                     ", latitude=" + latitude +
                     ", longitude=" + longitude +
                     '}';
